@@ -2698,6 +2698,7 @@ const ENTRYPOINT_SCRIPT_PATH = path_1.default.join(__dirname, "../entrypoint.sh"
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core_1.default.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
+        console.log("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
             if (err) {
                 console.error(err);
