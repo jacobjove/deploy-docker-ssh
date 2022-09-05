@@ -20,7 +20,7 @@ The absolute filepath of the directory to which necessary files (e.g., docker-co
 
 ## `files`
 
-A space-delimited list of relative paths (e.g., `.env docker-compose.yml`) to be synced to the server's target directory (specified in the `target` input). 
+A space-delimited list of relative paths (e.g., `.env docker-compose.yml`) to be synced to the server's target directory. 
 
 Note: These relative paths are copied recursively into a temporary directory (via `cp -r`) which is then synced to the server's target directory via the `rsync` utility. The full relative paths are preserved; e.g., `a/b/c.txt` is synced to `[target]/a/b/c.txt`. This means that you can safely use these paths as Docker volumes without modifying the volume paths specified in the `docker-compose.yml` file used in development.
 
