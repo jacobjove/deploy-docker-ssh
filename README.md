@@ -25,7 +25,7 @@ This Docker container action deploys a Docker image (and any necessary files) to
 
 ## Example usage
 
-uses: actions/hello-world-docker-action@v1
+uses: iacobfred/deploy-docker-image-action@v1
 with:
   host: 'server.com'
   user: 'jacob'
