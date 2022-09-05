@@ -23,12 +23,6 @@ This Docker container action deploys a Docker image (and any necessary files) to
 
 **Required** The private key generated on the server, used to authenticate the SSH connection.
 
-<!-- ## Outputs
-
-## `time`
-
-The time we greeted you. -->
-
 ## Example usage
 
 uses: actions/hello-world-docker-action@v1
