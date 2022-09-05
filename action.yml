@@ -1,11 +1,6 @@
 # action.yml
 name: 'Deploy container'
-description: '
-  After a Docker image has been pushed to container registry, 
-  deploy necessary files to a server, 
-  pull the updated Docker image, 
-  and deploy a container using the new image.
-'
+description: 'Pull a Docker image to a remote server and deploy a container using the image.'
 inputs:
   host:
     description: 'The host name or IP address of the server to which this action will connect via SSH to deploy the image.'
