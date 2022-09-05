@@ -1,38 +1,38 @@
 # action.yml
-name: 'Deploy container'
-description: 'Pull a Docker image to a remote server and deploy a container using the image.'
+name: "Deploy container"
+description: "Pull a Docker image to a remote server and deploy a container using the image."
 branding:
-  icon: 'arrow-right'  
-  color: 'green'
+  icon: "arrow-right"
+  color: "green"
 inputs:
   host:
-    description: 'The host name or IP address of the server to which this action will connect via SSH to deploy the image.'
+    description: "The host name or IP address of the server to which this action will connect via SSH to deploy the image."
     required: true
   user:
-    description: 'The username to use when connecting to the server via SSH'
+    description: "The username to use when connecting to the server via SSH"
     required: true
   target:
-    description: 'The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server'
+    description: "The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server"
     required: true
   files:
-    description: 'A space-delimited list of files to be transferred/synced to the server'
+    description: "A space-delimited list of files to be transferred/synced to the server"
     required: false
-    default: ''
+    default: ""
   ssh-port:
-    description: 'The SSH port (e.g., 22) to use for connecting to the server'
+    description: "The SSH port (e.g., 22) to use for connecting to the server"
     required: false
-    default: '22'
+    default: "22"
   ssh-private-key:
-    description: 'The private key generated on the server, used to authenticate the SSH connection'
+    description: "The private key generated on the server, used to authenticate the SSH connection"
     required: true
   ssh-auth-sock:
-    description: 'The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection'
+    description: "The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection"
     required: false
-    default: '/tmp/ssh_agent.sock'
+    default: "/tmp/ssh_agent.sock"
   deploy-command:
-    description: 'The command to run on the server to deploy the container'
+    description: "The command to run on the server to deploy the container"
     required: false
-    default: 'set -a; source .env; set +a; docker compose pull && docker compose up -d'
+    default: "set -a; source .env; set +a; docker compose pull && docker compose up -d"
 runs:
   using: "node16"
   main: "dist/index.js"

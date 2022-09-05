@@ -1,4 +1,5 @@
 # Deploy Docker container
+
 This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server, optionally runs additional commands on the server, and starts up the container(s).
 
 ## Inputs
@@ -40,6 +41,7 @@ The command to run on the server (through an SSH connection) to deploy the conta
 **Default**: `set -a; source .env; set +a; docker compose pull && docker compose up -d`
 
 ## Example usage
+
 ```
 uses: iacobfred/deploy-docker-container@v1
 with:
@@ -53,6 +55,6 @@ with:
   ssh-port: '22'
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
   deploy-command: |
-    set -a; source .env; set +a; 
+    set -a; source .env; set +a;
     docker compose pull && docker compose up -d
 ```
