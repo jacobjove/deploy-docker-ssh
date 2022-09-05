@@ -34,14 +34,5 @@ inputs:
     required: false
     default: 'set -a; source .env; set +a; docker compose pull && docker compose up -d'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.host }}
-    - ${{ inputs.user }}
-    - ${{ inputs.target }}
-    - ${{ inputs.files }}
-    - ${{ inputs.ssh-port }}
-    - ${{ inputs.ssh-private-key }}
-    - ${{ inputs.ssh-auth-sock }}
-    - ${{ inputs.deploy-command }}
+  using: "node16"
+  main: "dist/index.js"

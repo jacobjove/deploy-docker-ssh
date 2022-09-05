@@ -1,4 +1,11 @@
-#!/bin/bash -l
+#!/bin/bash
+
+[ -z "$INPUT_SSH_AUTH_SOCK" ] && echo "SSH_AUTH_SOCK is not set." && exit 1
+[ -z "$INPUT_HOST" ] && echo "HOST is not set." && exit 1
+[ -z "$INPUT_USER" ] && echo "USER is not set." && exit 1
+[ -z "$INPUT_TARGET" ] && echo "TARGET is not set." && exit 1
+[ -z "$INPUT_SSH_PORT" ] && echo "SSH_PORT is not set." && exit 1
+[ -z "$INPUT_COMMAND" ] && echo "COMMAND is not set." && exit 1
 
 echo "Adding GitHub to known hosts..."
 mkdir -p ~/.ssh
