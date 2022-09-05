@@ -8,7 +8,7 @@ It is intended to be used _after_ a Docker image is built and pushed to a contai
 
 ## `host`
 
-The host name or IP address of the server to which this action will connect via SSH to deploy the image.
+The host name or IP address of the server to which this action will connect via SSH to deploy the container(s).
 
 ## `user`
 
@@ -16,11 +16,13 @@ The username to use when connecting to the server via SSH.
 
 ## `target`
 
-The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server.
+The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server. This is also the working directory in which the command(s) specified in the `command` input will be executed.
 
 ## `files`
 
-A space-delimited list of files to be transferred/synced to the server.
+A space-delimited list of relative paths (e.g., `.env docker-compose.yml`) to be synced to the server's target directory (specified in the `target` input). 
+
+Note: These relative paths are copied recursively into a temporary directory (via `cp -r`) which is then synced to the server's target directory via the `rsync` utility. The full relative paths are preserved; e.g., `a/b/c.txt` is synced to `[target]/a/b/c.txt`. This means that you can safely use these paths as Docker volumes without modifying the volume paths specified in the `docker-compose.yml` file used in development.
 
 ## `ssh-port`
 
