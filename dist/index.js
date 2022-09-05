@@ -2724,7 +2724,7 @@ function run() {
         console.log("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
             if (err) {
-                console.error(err);
+                core.error(err);
             }
             else {
                 console.log(`stdout: ${stdout}`);
