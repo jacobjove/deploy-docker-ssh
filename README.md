@@ -34,7 +34,7 @@ The private key generated on the server, used to authenticate the SSH connection
 
 The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection.
 
-**Default**: '/tmp/ssh_agent.sock'
+**Default**: `'/tmp/ssh_agent.sock'`
 
 ## `command`
 
