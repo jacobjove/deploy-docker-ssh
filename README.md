@@ -2,7 +2,7 @@
 
 This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server, optionally runs additional commands on the server, and starts up the container(s).
 
-It is intended to be used _after_ a Docker image is pushed to a container registry, e.g., through use of Docker's [build-push-action](https://github.com/docker/build-push-action).
+It is intended to be used _after_ a Docker image is built and pushed to a container registry, e.g., through use of Docker's [build-push-action](https://github.com/docker/build-push-action).
 
 ## Inputs
 
