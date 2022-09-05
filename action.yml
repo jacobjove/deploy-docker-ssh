@@ -29,7 +29,7 @@ inputs:
     description: "The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection"
     required: false
     default: "/tmp/ssh_agent.sock"
-  deploy-command:
+  command:
     description: "The command to run on the server to deploy the container"
     required: false
     default: "set -a; source .env; set +a; docker compose pull && docker compose up -d"

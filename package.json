@@ -1,5 +1,5 @@
 {
-  "name": "deploy-docker-container",
+  "name": "deploy-docker-ssh",
   "version": "1.2.1",
   "private": true,
   "description": "Deploys a docker container to a remote host",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iacobfred/deploy-docker-container.git"
+    "url": "git+https://github.com/iacobfred/deploy-docker-ssh.git"
   },
   "keywords": [
     "actions",
@@ -24,9 +24,9 @@
   "author": "Jacob Fredericksen <jacob.t.fredericksen@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iacobfred/deploy-docker-container/issues"
+    "url": "https://github.com/iacobfred/deploy-docker-ssh/issues"
   },
-  "homepage": "https://github.com/iacobfred/deploy-docker-container#readme",
+  "homepage": "https://github.com/iacobfred/deploy-docker-ssh#readme",
   "dependencies": {
     "@actions/core": "^1.6.0"
   },

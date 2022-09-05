@@ -1,6 +1,8 @@
-# Deploy Docker container
+# deploy-docker-ssh
 
 This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server, optionally runs additional commands on the server, and starts up the container(s).
+
+It is intended to be used _after_ a Docker image is pushed to a container registry, e.g., through use of Docker's [build-push-action](https://github.com/docker/build-push-action).
 
 ## Inputs
 
@@ -34,7 +36,7 @@ The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection.
 
 **Default**: '/tmp/ssh_agent.sock'
 
-## `deploy-command`
+## `command`
 
 The command to run on the server (through an SSH connection) to deploy the container.
 
@@ -43,7 +45,7 @@ The command to run on the server (through an SSH connection) to deploy the conta
 ## Example usage
 
 ```
-uses: iacobfred/deploy-docker-container@v1
+uses: iacobfred/deploy-docker-ssh@v1
 with:
   host: 'server.com'
   user: 'jacob'
@@ -54,7 +56,7 @@ with:
     .config/nginx.conf
   ssh-port: '22'
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-  deploy-command: |
+  command: |
     set -a; source .env; set +a;
     docker compose pull && docker compose up -d
 ```
