@@ -32,9 +32,7 @@ inputs:
   deploy-command:
     description: 'The command to run on the server to deploy the container'
     required: false
-    default: |
-      set -a; source .env; set +a; 
-      docker compose pull && docker compose up -d
+    default: 'set -a; source .env; set +a; docker compose pull && docker compose up -d'
 runs:
   using: 'docker'
   image: 'Dockerfile'
