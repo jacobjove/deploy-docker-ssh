@@ -49,14 +49,9 @@ uses: iacobfred/deploy-docker-ssh@v1
 with:
   host: 'server.com'
   user: 'jacob'
-  target: '/var/www/server.com'
-  files: |
-    .env
-    docker-compose.yml
-    .config/nginx.conf
+  target: /var/www/server.com'
+  files: '.env docker-compose.yml .config/nginx.conf'
   ssh-port: '22'
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-  command: |
-    set -a; source .env; set +a;
-    docker compose pull && docker compose up -d
+  command: 'set -a; source .env; set +a; docker compose pull && docker compose up -d'
 ```
