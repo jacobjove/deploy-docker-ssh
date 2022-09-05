@@ -1,5 +1,5 @@
 # Deploy Docker container
-This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server via an SSH connection, optionally runs additional commands on the server, and starts up the container(s).
+This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server, optionally runs additional commands on the server, and starts up the container(s).
 
 ## Inputs
 
