@@ -50,4 +50,7 @@ with:
     .config/nginx.conf
   ssh-port: '22'
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  deploy-command: |
+    set -a; source .env; set +a; 
+    docker compose pull && docker compose up -d
 ```
