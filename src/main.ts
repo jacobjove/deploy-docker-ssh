@@ -11,9 +11,9 @@ async function run(): Promise<void> {
     `bash ${ENTRYPOINT_SCRIPT_PATH}`,
     { env: process.env },
     (err, stdout, stderr) => {
+      // https://github.com/actions/toolkit/tree/main/packages/core#annotations
       if (err) {
-        //some err occurred
-        console.error(err);
+        core.error(err);
       } else {
         // the *entire* stdout and stderr (buffered)
         console.log(`stdout: ${stdout}`);
