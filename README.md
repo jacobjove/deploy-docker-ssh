@@ -1,5 +1,5 @@
-# deploy-image-docker-action
-This Docker container action deploys a Docker image (and any necessary files) to a server as part of a GitHub Actions workflow.
+# Deploy Docker container
+This [action](https://docs.github.com/en/actions) pulls a Docker image (and any necessary files) to a remote server via an SSH connection, optionally runs additional commands on the server, and starts up the container(s).
 
 ## Inputs
 
