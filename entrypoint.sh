@@ -15,4 +15,5 @@ for filepath in "${files_to_transport[@]}"; do
 done
 rsync -rPv -e "ssh -p $INPUT_SSH_PORT -o 'StrictHostKeyChecking no'" dist/ "${INPUT_USER}@${INPUT_HOST}:${INPUT_TARGET}"
 echo "Starting SSH session with $INPUT_HOST..."
-ssh -o StrictHostKeyChecking=no -p "$INPUT_SSH_PORT" "${INPUT_USER}@${INPUT_HOST}" "cd $INPUT_TARGET && $INPUT_DEPLOY_COMMAND"
+command="cd ${INPUT_TARGET} && ${INPUT_COMMAND}"
+ssh -o StrictHostKeyChecking=no -p "$INPUT_SSH_PORT" "${INPUT_USER}@${INPUT_HOST}" "$command"
