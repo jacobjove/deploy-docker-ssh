@@ -38,7 +38,7 @@ The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection.
 
 ## `command`
 
-The command to run on the server (through an SSH connection) to deploy the container.
+The command to run on the server (through an SSH connection) to deploy the new container(s).
 
 **Default**: `set -a; source .env; set +a; docker compose pull && docker compose up -d`
 
