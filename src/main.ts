@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import path from "path";
-import core from "@actions/core";
+import * as core from "@actions/core";
 
 const ENTRYPOINT_SCRIPT_PATH: string = path.join(__dirname, "../entrypoint.sh");
 
