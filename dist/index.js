@@ -2728,7 +2728,7 @@ function run() {
         process.env.INPUT_HOST = core.getInput("host", { required: true });
         process.env.INPUT_USER = core.getInput("user", { required: true });
         process.env.INPUT_TARGET = core.getInput("target", { required: true });
-        process.env.INPUT_FILES = core.getInput("files", { required: false });
+        process.env.INPUT_FILES = core.getInput("files", { required: true });
         process.env.INPUT_SSH_PORT =
             core.getInput("ssh-port", { required: false }) || "22";
         process.env.INPUT_SSH_PRIVATE_KEY = core.getInput("ssh-private-key", {

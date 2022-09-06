@@ -15,7 +15,7 @@ inputs:
     description: "The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server"
     required: true
   files:
-    description: "A space-delimited list of files to be transferred/synced to the server"
+    description: "A space-delimited list of files to be transferred/synced to the server (e.g., 'docker-compose.yml')"
     required: false
     default: ""
   ssh-port:
