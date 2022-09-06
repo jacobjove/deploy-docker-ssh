@@ -18,9 +18,9 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
 DIST_DIRNAME="dist"
 
 [ -z "$INPUT_FILES" ] || {
-    read -ar files_to_transport <<< "$INPUT_FILES"
+    IFS=$'\n ' read -a -r files_to_transport <<< "$INPUT_FILES"
     echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
-    echo "${files_to_transport[@]}"
+    echo "${INPUT_FILES}"
 
     cd "$GITHUB_WORKSPACE" || {
         echo "Failed to change directory to $GITHUB_WORKSPACE"
