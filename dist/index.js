@@ -2723,7 +2723,8 @@ function run() {
         core.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
             if (err) {
-                core.error(err);
+                core.error(err.message);
+                core.setFailed(err.message);
             }
             else {
                 core.info(`stdout: ${stdout}`);

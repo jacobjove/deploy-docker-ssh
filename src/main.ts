@@ -12,7 +12,8 @@ async function run(): Promise<void> {
     (err, stdout, stderr) => {
       // https://github.com/actions/toolkit/tree/main/packages/core#annotations
       if (err) {
-        core.error(err);
+        core.error(err.message);
+        core.setFailed(err.message);
       } else {
         core.info(`stdout: ${stdout}`);
         core.warning(`stderr: ${stderr}`);
