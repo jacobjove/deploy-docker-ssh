@@ -2720,14 +2720,24 @@ const core = __importStar(__nccwpck_require__(186));
 const ENTRYPOINT_SCRIPT_PATH = path_1.default.join(__dirname, "../entrypoint.sh");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        process.env.INPUT_SSH_AUTH_SOCK = core.getInput("ssh-auth-sock", {
+            required: true,
+        });
+        process.env.INPUT_HOST = core.getInput("host", { required: true });
+        process.env.INPUT_USER = core.getInput("user", { required: true });
+        process.env.INPUT_TARGET = core.getInput("target", { required: true });
+        process.env.INPUT_SSH_PORT =
+            core.getInput("ssh-port", { required: false }) || "22";
+        process.env.INPUT_COMMAND =
+            core.getInput("command", { required: false }) ||
+                `set -a; source .env; set +a; docker compose pull && docker compose up -d`;
         core.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
-            core.info(`stdout: ${stdout}`);
-            core.warning(`stderr: ${stderr}`);
-            if (err) {
-                core.error(err.message);
+            core.info(stdout);
+            if (stderr)
+                core.warning(stderr);
+            if (err)
                 core.setFailed(err.message);
-            }
         });
     });
 }

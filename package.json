@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/iacobfred/deploy-docker-ssh#readme",
   "dependencies": {
-    "@actions/core": "^1.6.0"
+    "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^17.0.10",
