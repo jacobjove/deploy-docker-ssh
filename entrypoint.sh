@@ -15,19 +15,36 @@ ssh-agent -a "$INPUT_SSH_AUTH_SOCK" > /dev/null
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
 
-DIST_DIRNAME="dist"
-
 [ -z "$INPUT_FILES" ] || {
-    # echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
-    # echo "${INPUT_FILES}"
+    DIST_DIRNAME="tmp-$(date +%s)"
+    DIST_DIR="${GITHUB_WORKSPACE}/${DIST_DIRNAME}"
+
+    echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
+    echo "${INPUT_FILES}"
+
+    [ -d "$GITHUB_WORKSPACE" ] || {
+        echo "$GITHUB_WORKSPACE is not a directory."
+        exit 1
+    }
+    [ -w "$GITHUB_WORKSPACE" ] || {
+        echo "$GITHUB_WORKSPACE is not writeable."
+        exit 1
+    }
+
+    mkdir -p "$DIST_DIR"
+
+    [ -d "$DIST_DIR" ] || {
+        echo "Failed to create $DIST_DIR directory."
+        exit 1
+    }
 
     cd "$GITHUB_WORKSPACE" || {
-        echo "Failed to change directory to $GITHUB_WORKSPACE"
+        echo "Failed to change directory to ${GITHUB_WORKSPACE}"
         exit 1
     }
     
     IFS=$'\n ' read -a -r files_to_transport <<< "$INPUT_FILES"
-    echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
+    echo "Bundling the following files to ${DIST_DIR}:"
     echo "${files_to_transport[@]}"
     for filepath in "${files_to_transport[@]}"; do
         echo "Preparing $filepath for sync..."
