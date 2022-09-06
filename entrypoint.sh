@@ -43,7 +43,13 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
         exit 1
     }
     
-    IFS=$'\n ' read -a -r files_to_transport <<< "$INPUT_FILES"
+    # shellcheck disable=SC2206
+    IFS=$' \n' files_to_transport=($INPUT_FILES)
+    IFS=$' \n' read -rd '' -a files_to_transport_b <<<"$INPUT_FILES"
+
+    echo "Bundle A: ${files_to_transport[*]}"
+    echo "Bundle B: ${files_to_transport_b[*]}"
+
     echo "Bundling the following files to ${DIST_DIR}:"
     echo "${files_to_transport[@]}"
     for filepath in "${files_to_transport[@]}"; do
