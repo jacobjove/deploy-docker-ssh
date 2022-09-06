@@ -4,7 +4,7 @@ import * as core from "@actions/core";
 
 const ENTRYPOINT_SCRIPT_PATH: string = path.join(__dirname, "../entrypoint.sh");
 
-const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = true;
+const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = false;
 
 async function run(): Promise<void> {
   process.env.INPUT_SSH_AUTH_SOCK =

@@ -2718,7 +2718,7 @@ const child_process_1 = __nccwpck_require__(81);
 const path_1 = __importDefault(__nccwpck_require__(17));
 const core = __importStar(__nccwpck_require__(186));
 const ENTRYPOINT_SCRIPT_PATH = path_1.default.join(__dirname, "../entrypoint.sh");
-const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = true;
+const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = false;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         process.env.INPUT_SSH_AUTH_SOCK =
