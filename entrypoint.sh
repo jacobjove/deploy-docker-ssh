@@ -44,32 +44,35 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
     }
     
     # shellcheck disable=SC2206
-    IFS=$' \n' files_to_transport=($INPUT_FILES)
-    IFS=$' \n' read -rd '' -a files_to_transport_b <<<"$INPUT_FILES"
+    IFS=$' \n' read -rd '' -a files_to_transport <<<"$INPUT_FILES"
+    IFS=$' \n' read -rd '' -a files_to_transport_b <<< "$INPUT_FILES"
 
+    echo ""
     echo "Bundle A: ${files_to_transport[*]}"
     echo "Bundle B: ${files_to_transport_b[*]}"
+    echo ""
 
     echo "Bundling the following files to ${DIST_DIR}:"
     echo "${files_to_transport[@]}"
     for filepath in "${files_to_transport[@]}"; do
-        echo "Preparing $filepath for sync..."
-        parent_dir=$(dirname "$filepath")
-        mkdir -p "./dist/${parent_dir}"
-        cp -r "$filepath" "dist/${filepath}"
+        path_to_file_dir=$(dirname "$filepath")
+        cp_dest_dir="${DIST_DIR}/${path_to_file_dir}"
+        mkdir -p "${cp_dest_dir}"
+        [ -d "$cp_dest_dir" ] || {
+            echo "Failed to create $cp_dest_dir directory"
+            exit 1
+        }
+        echo "Copying $filepath to ${cp_dest_dir}..."
+        cp -r "$filepath" "$cp_dest_dir"
     done
 
-    [ -d "$DIST_DIRNAME" ] || {
-        echo "Failed to create $DIST_DIRNAME directory"
-        exit 1
-    }
 
     echo "Prepared distribution directory with the following contents:"
-    ls -alt $DIST_DIRNAME
+    ls -alt "$DIST_DIR"
 
     # Sync the distribution dir to the target.
     echo "Syncing distribution directory to ${INPUT_HOST}:${INPUT_TARGET}..."
-    rsync -rPv -e "ssh -p $INPUT_SSH_PORT -o 'StrictHostKeyChecking no'" "${DIST_DIRNAME}/" "${INPUT_USER}@${INPUT_HOST}:${INPUT_TARGET}"
+    rsync -rPv -e "ssh -p $INPUT_SSH_PORT -o 'StrictHostKeyChecking no'" "${DIST_DIR}/" "${INPUT_USER}@${INPUT_HOST}:${INPUT_TARGET}"
 }
 
 echo "Starting SSH session with $INPUT_HOST..."
