@@ -29,9 +29,14 @@ DIST_DIRNAME="dist"
     for filepath in "${files_to_transport[@]}"; do
         echo "Preparing $filepath for sync..."
         parent_dir=$(dirname "$filepath")
-        mkdir -p "dist/${parent_dir}"
+        mkdir -p "./dist/${parent_dir}"
         cp -r "$filepath" "dist/${filepath}"
     done
+
+    [ -d "$DIST_DIRNAME" ] || {
+        echo "Failed to create $DIST_DIRNAME directory"
+        exit 1
+    }
 
     echo "Prepared distribution directory with the following contents:"
     ls -alt $DIST_DIRNAME
