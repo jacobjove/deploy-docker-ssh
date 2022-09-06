@@ -15,10 +15,13 @@ ssh-agent -a "$INPUT_SSH_AUTH_SOCK" > /dev/null
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
 
+DIST_DIRNAME="dist"
+
 [ -z "$INPUT_FILES" ] || {
-    echo "The following files will be synced to to ${INPUT_HOST}:${INPUT_TARGET}:"
-    echo "${INPUT_FILES}"
     read -ar files_to_transport <<< "$INPUT_FILES"
+    echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
+    echo "${files_to_transport[@]}"
+
     cd "$GITHUB_WORKSPACE" || {
         echo "Failed to change directory to $GITHUB_WORKSPACE"
         exit 1
@@ -29,7 +32,13 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
         mkdir -p "dist/${parent_dir}"
         cp -r "$filepath" "dist/${filepath}"
     done
-    rsync -rPv -e "ssh -p $INPUT_SSH_PORT -o 'StrictHostKeyChecking no'" dist/ "${INPUT_USER}@${INPUT_HOST}:${INPUT_TARGET}"
+
+    echo "Prepared distribution directory with the following contents:"
+    ls -alt $DIST_DIRNAME
+
+    # Sync the distribution dir to the target.
+    echo "Syncing distribution directory to ${INPUT_HOST}:${INPUT_TARGET}..."
+    rsync -rPv -e "ssh -p $INPUT_SSH_PORT -o 'StrictHostKeyChecking no'" "${DIST_DIRNAME}/" "${INPUT_USER}@${INPUT_HOST}:${INPUT_TARGET}"
 }
 
 echo "Starting SSH session with $INPUT_HOST..."
