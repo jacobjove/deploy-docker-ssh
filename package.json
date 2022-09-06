@@ -16,10 +16,10 @@
     "url": "git+https://github.com/iacobfred/deploy-docker-ssh.git"
   },
   "keywords": [
-    "actions",
-    "node",
-    "dotenv",
-    "github"
+    "Actions",
+    "Docker",
+    "GitHub",
+    "SSH"
   ],
   "author": "Jacob Fredericksen <jacob.t.fredericksen@gmail.com>",
   "license": "MIT",
