@@ -7,6 +7,7 @@
 [ -z "$INPUT_SSH_PORT" ] && echo "SSH_PORT is not set." && exit 1
 [ -z "$INPUT_SSH_PRIVATE_KEY" ] && echo "SSH_PRIVATE_KEY is not set." && exit 1
 [ -z "$INPUT_COMMAND" ] && echo "COMMAND is not set." && exit 1
+[ -z "$GITHUB_WORKSPACE" ] && echo "GITHUB_WORKSPACE is not set." && exit 1
 
 echo "Adding GitHub to known hosts..."
 mkdir -p ~/.ssh
@@ -18,6 +19,10 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
     echo "The following files will be synced to to ${INPUT_HOST}:${INPUT_TARGET}:"
     echo "${INPUT_FILES}"
     read -ar files_to_transport <<< "$INPUT_FILES"
+    cd "$GITHUB_WORKSPACE" || {
+        echo "Failed to change directory to $GITHUB_WORKSPACE"
+        exit 1
+    }
     for filepath in "${files_to_transport[@]}"; do
         echo "Preparing $filepath for sync..."
         parent_dir=$(dirname "$filepath")
