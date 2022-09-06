@@ -2722,13 +2722,11 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
+            core.info(`stdout: ${stdout}`);
+            core.warning(`stderr: ${stderr}`);
             if (err) {
                 core.error(err.message);
                 core.setFailed(err.message);
-            }
-            else {
-                core.info(`stdout: ${stdout}`);
-                core.warning(`stderr: ${stderr}`);
             }
         });
     });

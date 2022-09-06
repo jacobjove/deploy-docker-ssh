@@ -11,12 +11,11 @@ async function run(): Promise<void> {
     { env: process.env },
     (err, stdout, stderr) => {
       // https://github.com/actions/toolkit/tree/main/packages/core#annotations
+      core.info(`stdout: ${stdout}`);
+      core.warning(`stderr: ${stderr}`);
       if (err) {
         core.error(err.message);
         core.setFailed(err.message);
-      } else {
-        core.info(`stdout: ${stdout}`);
-        core.warning(`stderr: ${stderr}`);
       }
     }
   );
