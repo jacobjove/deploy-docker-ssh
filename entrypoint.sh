@@ -62,7 +62,7 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
 
 
     echo "Prepared distribution directory with the following contents:"
-    ls -alt "$DIST_DIR"
+    ls -a "$DIST_DIR"
 
     # Sync the distribution dir to the target.
     echo "Syncing distribution directory to ${INPUT_HOST}:${INPUT_TARGET}..."

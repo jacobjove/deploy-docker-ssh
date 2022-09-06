@@ -1,6 +1,7 @@
 # action.yml
-name: "Deploy container"
-description: "Pull a Docker image to a remote server and deploy a container using the image."
+name: "Deploy containers"
+description: "Pull Docker images to a remote server and deploy associated containers."
+author: "Jacob Fredericksen"
 branding:
   icon: "arrow-right"
   color: "green"
