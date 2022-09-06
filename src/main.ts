@@ -4,6 +4,8 @@ import * as core from "@actions/core";
 
 const ENTRYPOINT_SCRIPT_PATH: string = path.join(__dirname, "../entrypoint.sh");
 
+const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = true;
+
 async function run(): Promise<void> {
   process.env.INPUT_SSH_AUTH_SOCK =
     core.getInput("ssh-auth-sock", {
@@ -27,8 +29,10 @@ async function run(): Promise<void> {
     { env: process.env },
     (err, stdout, stderr) => {
       // https://github.com/actions/toolkit/tree/main/packages/core#annotations
-      core.info(stdout);
-      if (stderr) core.warning(stderr);
+      if (!SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT) {
+        core.info(stdout);
+        if (stderr) core.warning(stderr);
+      }
       if (err) core.setFailed(err.message);
     }
   );
