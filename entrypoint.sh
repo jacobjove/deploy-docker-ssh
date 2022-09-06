@@ -18,15 +18,17 @@ ssh-add - <<< "$INPUT_SSH_PRIVATE_KEY"
 DIST_DIRNAME="dist"
 
 [ -z "$INPUT_FILES" ] || {
-    echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
-    echo "${INPUT_FILES}"
+    # echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
+    # echo "${INPUT_FILES}"
 
     cd "$GITHUB_WORKSPACE" || {
         echo "Failed to change directory to $GITHUB_WORKSPACE"
         exit 1
     }
-
+    
     IFS=$'\n ' read -a -r files_to_transport <<< "$INPUT_FILES"
+    echo "The following files will be synced to ${INPUT_HOST}:${INPUT_TARGET}:"
+    echo "${files_to_transport[@]}"
     for filepath in "${files_to_transport[@]}"; do
         echo "Preparing $filepath for sync..."
         parent_dir=$(dirname "$filepath")
