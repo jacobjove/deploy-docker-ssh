@@ -1,5 +1,13 @@
 {
   "language": "en",
-  "words": ["dotenv", "ghcr", "keyscan", "mkdir", "Patreon", "shellcheck"],
+  "words": [
+    "codeql",
+    "dotenv",
+    "ghcr",
+    "keyscan",
+    "mkdir",
+    "Patreon",
+    "shellcheck"
+  ],
   "flagWords": ["hte"]
 }
