@@ -2673,6 +2673,68 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 63:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getInputs = void 0;
+const core = __importStar(__nccwpck_require__(186));
+function getInputs() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const inputs = {
+            sshAuthSock: core.getInput("ssh-auth-sock", { required: false }) ||
+                "/tmp/ssh_agent.sock",
+            host: core.getInput("host", { required: true }),
+            user: core.getInput("user", { required: true }),
+            target: core.getInput("target", { required: true }),
+            files: core.getInput("files", { required: true }),
+            sshPort: core.getInput("ssh-port", { required: false }) || "22",
+            sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
+            command: core.getInput("command", { required: false }) ||
+                `set -a; source .env; set +a; docker compose pull && docker compose up -d`,
+        };
+        return inputs;
+    });
+}
+exports.getInputs = getInputs;
+
+
+/***/ }),
+
 /***/ 399:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -2716,38 +2778,60 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const child_process_1 = __nccwpck_require__(81);
 const path_1 = __importDefault(__nccwpck_require__(17));
+const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
-const ENTRYPOINT_SCRIPT_PATH = path_1.default.join(__dirname, "../entrypoint.sh");
-const SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT = false;
+const fs = __importStar(__nccwpck_require__(147));
+const nanoid_1 = __nccwpck_require__(934);
+function execInRealTime(command) {
+    return (0, child_process_1.execSync)(command, { stdio: "inherit" });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        process.env.INPUT_SSH_AUTH_SOCK =
-            core.getInput("ssh-auth-sock", {
-                required: false,
-            }) || "/tmp/ssh_agent.sock";
-        process.env.INPUT_HOST = core.getInput("host", { required: true });
-        process.env.INPUT_USER = core.getInput("user", { required: true });
-        process.env.INPUT_TARGET = core.getInput("target", { required: true });
-        process.env.INPUT_FILES = core.getInput("files", { required: true });
-        process.env.INPUT_SSH_PORT =
-            core.getInput("ssh-port", { required: false }) || "22";
-        process.env.INPUT_SSH_PRIVATE_KEY = core.getInput("ssh-private-key", {
-            required: true,
-        });
-        process.env.INPUT_COMMAND =
-            core.getInput("command", { required: false }) ||
-                `set -a; source .env; set +a; docker compose pull && docker compose up -d`;
-        core.info(`Running entrypoint script: ${ENTRYPOINT_SCRIPT_PATH}`);
-        (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
-            // https://github.com/actions/toolkit/tree/main/packages/core#annotations
-            if (!SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT) {
-                core.info(stdout);
-                if (stderr)
-                    core.warning(stderr);
+        const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
+        if (!GITHUB_WORKSPACE) {
+            core.setFailed("GITHUB_WORKSPACE is not set.");
+            return;
+        }
+        else if (!fs.existsSync(GITHUB_WORKSPACE)) {
+            core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
+            return;
+        }
+        process.chdir(GITHUB_WORKSPACE);
+        const inputs = yield (0, inputs_1.getInputs)();
+        core.info("Adding GitHub to known hosts...");
+        execInRealTime("mkdir -p ~/.ssh");
+        execInRealTime(`ssh-agent -a "${inputs.sshAuthSock}" > /dev/null`);
+        execInRealTime(`ssh-keyscan github.com >> ~/.ssh/known_hosts`);
+        execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
+        const distDirPath = path_1.default.join(GITHUB_WORKSPACE, `tmp-${(0, nanoid_1.nanoid)()}`);
+        fs.mkdirSync(distDirPath, { recursive: true });
+        const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
+        if (inputs.files) {
+            const filesToTransport = inputs.files.split(/[\s\n]+/);
+            core.info(`Bundling the following to be transported:\n${filesToTransport.join(" ")}`);
+            for (const filepath of filesToTransport) {
+                const sourcePath = path_1.default.join(GITHUB_WORKSPACE, filepath);
+                if (!fs.existsSync(sourcePath)) {
+                    core.setFailed(`${sourcePath} does not exist.`);
+                    return;
+                }
+                const destDir = path_1.default.join(distDirPath, path_1.default.dirname(filepath));
+                fs.mkdirSync(destDir, { recursive: true });
+                execInRealTime(`cp -r ${sourcePath} ${destDir}`);
             }
-            if (err)
-                core.setFailed(err.message);
-        });
+            core.info(`Prepared distribution directory with the following contents:`);
+            execInRealTime(`ls -a ${distDirPath}`);
+            core.info(`Syncing distribution directory to ${inputs.host}:${inputs.target} ...`);
+            execInRealTime(`rsync -rPv -e "${sshPartial}" "${distDirPath}/" "${inputs.user}@${inputs.host}:${inputs.target}"`);
+        }
+        core.info(`Starting SSH connection with ${inputs.host} ...`);
+        const command = `cd ${inputs.target} && ${inputs.command}`;
+        try {
+            execInRealTime(`${sshPartial} "${inputs.user}@${inputs.host}" "${command}"`);
+        }
+        catch (err) {
+            core.setFailed(err instanceof Error ? err.message : `${err}`);
+        }
     });
 }
 run();
@@ -2849,6 +2933,78 @@ module.exports = require("tls");
 "use strict";
 module.exports = require("util");
 
+/***/ }),
+
+/***/ 934:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "customAlphabet": () => (/* binding */ customAlphabet),
+  "customRandom": () => (/* binding */ customRandom),
+  "nanoid": () => (/* binding */ nanoid),
+  "random": () => (/* binding */ random),
+  "urlAlphabet": () => (/* reexport */ urlAlphabet)
+});
+
+// EXTERNAL MODULE: external "crypto"
+var external_crypto_ = __nccwpck_require__(113);
+;// CONCATENATED MODULE: ./node_modules/nanoid/url-alphabet/index.js
+const urlAlphabet =
+  'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict'
+
+;// CONCATENATED MODULE: ./node_modules/nanoid/index.js
+
+
+
+const POOL_SIZE_MULTIPLIER = 128
+let pool, poolOffset
+let fillPool = bytes => {
+  if (!pool || pool.length < bytes) {
+    pool = Buffer.allocUnsafe(bytes * POOL_SIZE_MULTIPLIER)
+    ;(0,external_crypto_.randomFillSync)(pool)
+    poolOffset = 0
+  } else if (poolOffset + bytes > pool.length) {
+    (0,external_crypto_.randomFillSync)(pool)
+    poolOffset = 0
+  }
+  poolOffset += bytes
+}
+let random = bytes => {
+  fillPool((bytes -= 0))
+  return pool.subarray(poolOffset - bytes, poolOffset)
+}
+let customRandom = (alphabet, defaultSize, getRandom) => {
+  let mask = (2 << (31 - Math.clz32((alphabet.length - 1) | 1))) - 1
+  let step = Math.ceil((1.6 * mask * defaultSize) / alphabet.length)
+  return (size = defaultSize) => {
+    let id = ''
+    while (true) {
+      let bytes = getRandom(step)
+      let i = step
+      while (i--) {
+        id += alphabet[bytes[i] & mask] || ''
+        if (id.length === size) return id
+      }
+    }
+  }
+}
+let customAlphabet = (alphabet, size = 21) =>
+  customRandom(alphabet, size, random)
+let nanoid = (size = 21) => {
+  fillPool((size -= 0))
+  let id = ''
+  for (let i = poolOffset - size; i < poolOffset; i++) {
+    id += urlAlphabet[pool[i] & 63]
+  }
+  return id
+}
+
+
 /***/ })
 
 /******/ 	});
@@ -2884,6 +3040,34 @@ module.exports = require("util");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";

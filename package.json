@@ -30,7 +30,8 @@
   "homepage": "https://github.com/iacobfred/deploy-docker-ssh#readme",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@actions/exec": "^1.1.1"
+    "@actions/exec": "^1.1.1",
+    "nanoid": "^4.0.0"
   },
   "devDependencies": {
     "@jest/types": "^29.0.2",
