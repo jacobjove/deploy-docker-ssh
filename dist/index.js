@@ -2783,7 +2783,7 @@ const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
 function execInRealTime(command) {
-    return (0, child_process_1.execSync)(command, { stdio: "inherit" });
+    return (0, child_process_1.execSync)(command, { shell: "/bin/bash", stdio: "inherit" });
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {

@@ -6,7 +6,7 @@ import * as fs from "fs";
 import { nanoid } from "nanoid";
 
 function execInRealTime(command: string): ReturnType<typeof execSync> {
-  return execSync(command, { stdio: "inherit" });
+  return execSync(command, { shell: "/bin/bash", stdio: "inherit" });
 }
 
 async function run(): Promise<void> {
