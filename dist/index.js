@@ -2739,6 +2739,7 @@ function run() {
                 `set -a; source .env; set +a; docker compose pull && docker compose up -d`;
         core.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
         (0, child_process_1.exec)(`bash ${ENTRYPOINT_SCRIPT_PATH}`, { env: process.env }, (err, stdout, stderr) => {
+            // https://github.com/actions/toolkit/tree/main/packages/core#annotations
             if (!SHELL_OUTPUT_IS_DISPLAYED_BY_DEFAULT) {
                 core.info(stdout);
                 if (stderr)
