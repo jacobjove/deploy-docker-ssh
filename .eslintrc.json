@@ -10,6 +10,7 @@
   "rules": {
     "i18n-text/no-en": "off",
     "eslint-comments/no-use": "off",
+    "filenames/match-regex": ["error", "^[a-z0-9-]+(.d|.config|.test)?$"],
     "import/no-namespace": "off",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "error",
@@ -49,7 +50,7 @@
     "@typescript-eslint/require-array-sort-compare": "error",
     "@typescript-eslint/restrict-plus-operands": "error",
     "semi": "off",
-    "@typescript-eslint/semi": ["error", "never"],
+    "@typescript-eslint/semi": "off",
     "@typescript-eslint/type-annotation-spacing": "error",
     "@typescript-eslint/unbound-method": "error"
   },

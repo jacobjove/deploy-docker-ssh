@@ -23,7 +23,7 @@ async function run(): Promise<void> {
   process.env.INPUT_COMMAND =
     core.getInput("command", { required: false }) ||
     `set -a; source .env; set +a; docker compose pull && docker compose up -d`;
-  core.info("Running entrypoint script: " + ENTRYPOINT_SCRIPT_PATH);
+  core.info(`Running entrypoint script: ${ENTRYPOINT_SCRIPT_PATH}`);
   exec(
     `bash ${ENTRYPOINT_SCRIPT_PATH}`,
     { env: process.env },
