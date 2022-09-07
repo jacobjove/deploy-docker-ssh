@@ -1,6 +1,6 @@
 {
   "name": "deploy-docker-ssh",
-  "version": "1.2.1",
+  "version": "0.2.6",
   "private": true,
   "description": "Deploys a docker container to a remote host",
   "main": "dist/index.js",
