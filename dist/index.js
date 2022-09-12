@@ -2825,7 +2825,7 @@ function run() {
             execInRealTime(`rsync -rPv -e "${sshPartial}" "${distDirPath}/" "${inputs.user}@${inputs.host}:${inputs.target}"`);
         }
         core.info(`Starting SSH connection with ${inputs.host} ...`);
-        const command = `cd ${inputs.target} && ${inputs.command}`;
+        const command = `cd '${inputs.target}' && ${inputs.command}`;
         try {
             execInRealTime(`${sshPartial} "${inputs.user}@${inputs.host}" "${command}"`);
         }
