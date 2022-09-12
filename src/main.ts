@@ -28,6 +28,19 @@ async function run(): Promise<void> {
   const distDirPath = path.join(GITHUB_WORKSPACE, `tmp-${nanoid()}`);
   fs.mkdirSync(distDirPath, { recursive: true });
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
+  core.info("Confirming target directory exists on remote server...");
+  const successMessage = "Confirmed target directory exists.";
+  const targetDirCheckOutput = execInRealTime(
+    `if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
+    then echo "${successMessage}"; 
+    else echo "Target directory ${inputs.target} does not exist."; fi`
+  )
+    .toString()
+    .trim();
+  if (targetDirCheckOutput !== successMessage) {
+    core.setFailed(targetDirCheckOutput);
+    return;
+  }
   if (inputs.files) {
     const filesToTransport = inputs.files.split(/[\s\n]+/);
     core.info(

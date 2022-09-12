@@ -2725,7 +2725,7 @@ function getInputs() {
             sshPort: core.getInput("ssh-port", { required: false }) || "22",
             sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
             command: core.getInput("command", { required: false }) ||
-                `set -a; source .env; set +a; docker compose pull && docker compose up -d`,
+                `echo "Connected successfully. To run commands after connecting, set the 'command' input."`,
         };
         return inputs;
     });
@@ -2806,6 +2806,17 @@ function run() {
         const distDirPath = path_1.default.join(GITHUB_WORKSPACE, `tmp-${(0, nanoid_1.nanoid)()}`);
         fs.mkdirSync(distDirPath, { recursive: true });
         const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
+        core.info("Confirming target directory exists on remote server...");
+        const successMessage = "Confirmed target directory exists.";
+        const targetDirCheckOutput = execInRealTime(`if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
+    then echo "${successMessage}"; 
+    else echo "Target directory ${inputs.target} does not exist."; fi`)
+            .toString()
+            .trim();
+        if (targetDirCheckOutput !== successMessage) {
+            core.setFailed(targetDirCheckOutput);
+            return;
+        }
         if (inputs.files) {
             const filesToTransport = inputs.files.split(/[\s\n]+/);
             core.info(`Bundling the following to be transported:\n${filesToTransport.join(" ")}`);

@@ -24,7 +24,7 @@ export async function getInputs(): Promise<Inputs> {
     sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
     command:
       core.getInput("command", { required: false }) ||
-      `set -a; source .env; set +a; docker compose pull && docker compose up -d`,
+      `echo "Connected successfully. To run commands after connecting, set the 'command' input."`,
   };
   return inputs;
 }
