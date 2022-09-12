@@ -2826,6 +2826,7 @@ function run() {
         }
         core.info(`Starting SSH connection with ${inputs.host} ...`);
         const command = `cd '${inputs.target}' && ${inputs.command}`;
+        core.info(command);
         try {
             execInRealTime(`${sshPartial} "${inputs.user}@${inputs.host}" "${command}"`);
         }
