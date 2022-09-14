@@ -5,8 +5,15 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-function execInRealTime(command: string): ReturnType<typeof execSync> {
-  return execSync(command, { shell: "/bin/bash", stdio: "inherit" });
+function execInRealTime(
+  ...args: Parameters<typeof execSync>
+): ReturnType<typeof execSync> {
+  const [command, options] = args;
+  return execSync(command, {
+    shell: "/bin/bash",
+    stdio: "inherit",
+    ...(options ?? {}),
+  });
 }
 
 async function run(): Promise<void> {
@@ -30,7 +37,7 @@ async function run(): Promise<void> {
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
   core.info("Confirming target directory exists on remote server...");
   const successMessage = "Confirmed target directory exists.";
-  const targetDirCheckOutput = execInRealTime(
+  const targetDirCheckOutput = execSync(
     `if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
     then echo "${successMessage}"; 
     else echo "Target directory ${inputs.target} does not exist."; fi`

@@ -2782,8 +2782,9 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-function execInRealTime(command) {
-    return (0, child_process_1.execSync)(command, { shell: "/bin/bash", stdio: "inherit" });
+function execInRealTime(...args) {
+    const [command, options] = args;
+    return (0, child_process_1.execSync)(command, Object.assign({ shell: "/bin/bash", stdio: "inherit" }, (options !== null && options !== void 0 ? options : {})));
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2808,7 +2809,7 @@ function run() {
         const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
         core.info("Confirming target directory exists on remote server...");
         const successMessage = "Confirmed target directory exists.";
-        const targetDirCheckOutput = execInRealTime(`if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
+        const targetDirCheckOutput = (0, child_process_1.execSync)(`if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
     then echo "${successMessage}"; 
     else echo "Target directory ${inputs.target} does not exist."; fi`)
             .toString()
