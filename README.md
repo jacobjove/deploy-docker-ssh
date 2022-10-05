@@ -61,5 +61,10 @@ with:
   files: ".env docker-compose.yml .config/nginx.conf"
   ssh-port: "22"
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-  command: "set -a; source .env; set +a; docker compose pull && docker compose up -d"
+  command: |
+    set -a && source .env && set +a &&
+    echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin &&
+    docker compose pull && docker compose up -d &&
+    if [ $RELOAD_WEBSERVER = true ]; then echo 'Reloading webserver...'; nginx -s reload; fi;
+    docker system prune -f
 ```
