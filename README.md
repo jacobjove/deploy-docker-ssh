@@ -58,7 +58,10 @@ with:
   host: "server.com"
   user: "jacob"
   target: /var/www/server.com'
-  files: ".env docker-compose.yml .config/nginx.conf"
+  files: |
+    .env
+    docker-compose.yml
+    .config/nginx.conf
   ssh-port: "22"
   ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
   command: |
