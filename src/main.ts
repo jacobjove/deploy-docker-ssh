@@ -17,6 +17,12 @@ function execInRealTime(
 }
 
 async function run(): Promise<void> {
+  if (!process.env.SSH_AUTH_SOCK) {
+    core.setFailed(
+      `SSH agent is not initialized. Please use the ssh-agent action: https://github.com/webfactory/ssh-agent`
+    );
+    return;
+  }
   const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
   if (!GITHUB_WORKSPACE) {
     core.setFailed("GITHUB_WORKSPACE is not set.");
@@ -27,11 +33,13 @@ async function run(): Promise<void> {
   }
   process.chdir(GITHUB_WORKSPACE);
   const inputs: Inputs = await getInputs();
-  core.info("Adding GitHub to known hosts...");
-  execInRealTime("mkdir -p ~/.ssh");
-  execInRealTime(`ssh-agent -a "${inputs.sshAuthSock}" > /dev/null`);
-  execInRealTime(`ssh-keyscan github.com >> ~/.ssh/known_hosts`);
-  execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
+  // Instead of initializing the SSH agent here, use the ssh-agent action:
+  // https://github.com/webfactory/ssh-agent
+  // core.info("Adding GitHub to known hosts...");
+  // execInRealTime("mkdir -p ~/.ssh");
+  // execInRealTime(`ssh-agent -a "${inputs.sshAuthSock}" > /dev/null`);
+  // execInRealTime(`ssh-keyscan github.com >> ~/.ssh/known_hosts`);
+  // execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
   const distDirPath = path.join(GITHUB_WORKSPACE, `tmp-${nanoid()}`);
   fs.mkdirSync(distDirPath, { recursive: true });
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
