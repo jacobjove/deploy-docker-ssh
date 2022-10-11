@@ -4,9 +4,16 @@
   <a href=""><img alt="deploy-docker-ssh status" src="https://github.com/iacobfred/deploy-docker-ssh/workflows/units-test/badge.svg"></a>
 </p>
 
-This [action](https://docs.github.com/en/actions) pulls Docker images (and any necessary files) to a remote server via an SSH connection and starts up the associated container(s) after optionally running additional commands on the server.
+This [action](https://docs.github.com/en/actions) pulls Docker images (and any necessary files)
+to a remote server via an SSH connection and starts up the associated container(s) after optionally
+running additional commands on the server.
 
-It is intended to be used after Docker images are built and pushed to a container registry—e.g., through use of Docker's [build-push-action](https://github.com/docker/build-push-action).
+It is intended to be used after Docker images are built and pushed to a container registry—e.g.,
+through use of Docker's [build-push-action](https://github.com/docker/build-push-action).
+
+It depends on the ssh-agent action (https://github.com/webfactory/ssh-agent);
+make sure to use the ssh-agent action according to its documentation before using this action,
+so that the SSH agent is properly initialized.
 
 ## Inputs
 
