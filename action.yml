@@ -12,13 +12,17 @@ inputs:
   user:
     description: "The username to use when connecting to the server via SSH"
     required: true
-  target:
-    description: "The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server"
-    required: true
   files:
-    description: "A space-delimited list of files to be transferred/synced to the server (e.g., 'docker-compose.yml')"
+    description: "A space-delimited list of filepaths (relative to `source-dir`) to be transferred/synced to the server (e.g., 'docker-compose.yml')"
     required: false
     default: ""
+  source-dir:
+    description: "The directory within the repository that contains the files to be transferred/synced to the server."
+    required: false
+    default: "."
+  target-dir:
+    description: "The absolute filepath of the directory to which necessary files (e.g., docker-compose.yml) will be transferred/synced on the server"
+    required: true
   ssh-port:
     description: "The SSH port (e.g., 22) to use for connecting to the server"
     required: false
@@ -32,8 +36,7 @@ inputs:
     default: "/tmp/ssh_agent.sock"
   command:
     description: "The command to run on the server to deploy the container"
-    required: false
-    default: "set -a; source .env; set +a; docker compose pull && docker compose up -d"
+    required: true
 runs:
   using: "node16"
   main: "dist/index.js"
