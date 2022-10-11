@@ -2720,7 +2720,8 @@ function getInputs() {
                 "/tmp/ssh_agent.sock",
             host: core.getInput("host", { required: true }),
             user: core.getInput("user", { required: true }),
-            target: core.getInput("target", { required: true }),
+            sourceDir: core.getInput("source-dir", { required: false }),
+            targetDir: core.getInput("target-dir", { required: true }),
             files: core.getInput("files", { required: true }),
             sshPort: core.getInput("ssh-port", { required: false }) || "22",
             sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
@@ -2809,9 +2810,9 @@ function run() {
         const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
         core.info("Confirming target directory exists on remote server...");
         const successMessage = "Confirmed target directory exists.";
-        const targetDirCheckOutput = (0, child_process_1.execSync)(`if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.target} ]"; 
+        const targetDirCheckOutput = (0, child_process_1.execSync)(`if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.targetDir} ]"; 
     then echo "${successMessage}"; 
-    else echo "Target directory ${inputs.target} does not exist."; fi`)
+    else echo "Target directory ${inputs.targetDir} does not exist."; fi`)
             .toString()
             .trim();
         if (targetDirCheckOutput !== successMessage) {
@@ -2819,25 +2820,26 @@ function run() {
             return;
         }
         if (inputs.files) {
-            const filesToTransport = inputs.files.split(/[\s\n]+/);
-            core.info(`Bundling the following to be transported:\n${filesToTransport.join(" ")}`);
-            for (const filepath of filesToTransport) {
-                const sourcePath = path_1.default.join(GITHUB_WORKSPACE, filepath);
-                if (!fs.existsSync(sourcePath)) {
-                    core.setFailed(`${sourcePath} does not exist.`);
+            const filepaths = inputs.files
+                .split(/[\s\n]+/)
+                .map((filepath) => path_1.default.join(inputs.sourceDir, filepath));
+            core.info(`To be transported:\n${filepaths.join("\n")}`);
+            for (const filepath of filepaths) {
+                if (!fs.existsSync(filepath)) {
+                    core.setFailed(`${filepath} does not exist.`);
                     return;
                 }
                 const destDir = path_1.default.join(distDirPath, path_1.default.dirname(filepath));
                 fs.mkdirSync(destDir, { recursive: true });
-                execInRealTime(`cp -r ${sourcePath} ${destDir}`);
+                execInRealTime(`cp -r ${filepath} ${destDir}`);
             }
             core.info(`Prepared distribution directory with the following contents:`);
             execInRealTime(`ls -a ${distDirPath}`);
-            core.info(`Syncing distribution directory to ${inputs.host}:${inputs.target} ...`);
-            execInRealTime(`rsync -rPv -e "${sshPartial}" "${distDirPath}/" "${inputs.user}@${inputs.host}:${inputs.target}"`);
+            core.info(`Syncing distribution directory to ${inputs.host}:${inputs.targetDir} ...`);
+            execInRealTime(`rsync -rPv -e "${sshPartial}" "${distDirPath}/" "${inputs.user}@${inputs.host}:${inputs.targetDir}"`);
         }
         core.info(`Starting SSH connection with ${inputs.host} ...`);
-        const command = `cd '${inputs.target}' && ${inputs.command}`;
+        const command = `cd '${inputs.targetDir}' && ${inputs.command}`;
         core.info(command);
         try {
             execInRealTime(`${sshPartial} "${inputs.user}@${inputs.host}" "${command}"`);
