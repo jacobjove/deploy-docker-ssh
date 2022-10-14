@@ -17,12 +17,23 @@ async function run(): Promise<void> {
     core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
     return;
   }
+
+  // Ensure the home directory exists.
   const homeDir = process.env.HOME || path.resolve("~");
   if (!homeDir) {
     core.setFailed("HOME is not set.");
     return;
+  } else if (!fs.existsSync(homeDir)) {
+    core.setFailed(`Home directory (${homeDir}) does not exist.`);
+    return;
   }
+
   const sshDir = path.join(homeDir, ".ssh");
+  // Ensure the SSH directory exists.
+  fs.mkdirSync(sshDir, {
+    recursive: true,
+    mode: 0o700,
+  });
 
   // Read inputs.
   const inputs: Inputs = await getInputs();

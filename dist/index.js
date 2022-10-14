@@ -2796,12 +2796,22 @@ function run() {
             core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
             return;
         }
+        // Ensure the home directory exists.
         const homeDir = process.env.HOME || path_1.default.resolve("~");
         if (!homeDir) {
             core.setFailed("HOME is not set.");
             return;
         }
+        else if (!fs.existsSync(homeDir)) {
+            core.setFailed(`Home directory (${homeDir}) does not exist.`);
+            return;
+        }
         const sshDir = path_1.default.join(homeDir, ".ssh");
+        // Ensure the SSH directory exists.
+        fs.mkdirSync(sshDir, {
+            recursive: true,
+            mode: 0o700,
+        });
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
         // Set known hosts.
