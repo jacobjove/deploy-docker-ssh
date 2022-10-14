@@ -47,6 +47,7 @@ async function run(): Promise<void> {
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
     echo "Known hosts:" && cat ${knownHostsFilepath} &&
+    touch ${inputs.sshAuthSock} &&
     ssh-agent -a ${inputs.sshAuthSock} > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
@@ -72,7 +73,7 @@ async function run(): Promise<void> {
   core.info(`Result: ${checkOutput}`);
 
   // Confirm the target directory exists on the server.
-  core.info("Confirming target directory exists on remote server...");
+  core.info("\nConfirming target directory exists on remote server...");
   successMessage = "Confirmed target directory exists.";
   const targetDirCheckOutput = execSync(
     `if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.targetDir} ]"; 
@@ -101,7 +102,7 @@ async function run(): Promise<void> {
 
     // Copy the deployable files from the source directory to the temporary directory.
     const relativeFilepaths = inputs.files.split(/[\s\n]+/);
-    core.info(`To be transported:\n${relativeFilepaths.join("\n")}`);
+    core.info(`\nTo be transported:\n${relativeFilepaths.join("\n")}`);
     for (const filepath of relativeFilepaths) {
       if (!fs.existsSync(filepath)) {
         core.setFailed(`${filepath} does not exist.`);
@@ -111,12 +112,12 @@ async function run(): Promise<void> {
       fs.mkdirSync(destDir, { recursive: true });
       execInRealTime(`cp -r ${filepath} ${destDir}`);
     }
-    core.info(`Prepared distribution directory with the following contents:`);
+    core.info(`\nPrepared distribution directory with the following contents:`);
     execInRealTime(`ls -a ${distDirPath}`);
 
     // Sync the temporary directory to the target directory on the server.
     core.info(
-      `Syncing distribution directory to ${inputs.host}:${inputs.targetDir} ...`
+      `\nSyncing distribution directory to ${inputs.host}:${inputs.targetDir} ...`
     );
     execInRealTime(
       `rsync -rPv -e "${sshPartial}" "${distDirPath}/" "${inputs.user}@${inputs.host}:${inputs.targetDir}"`
@@ -124,7 +125,7 @@ async function run(): Promise<void> {
   }
 
   // Execute the remote command.
-  core.info(`Starting SSH connection with ${inputs.host} ...`);
+  core.info(`\nStarting SSH connection with ${inputs.host} ...`);
   const command = `cd '${inputs.targetDir}' && ${inputs.command}`;
   core.info(command);
   try {
