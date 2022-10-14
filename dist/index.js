@@ -2806,10 +2806,7 @@ function run() {
         const inputs = yield (0, inputs_1.getInputs)();
         // Set known hosts.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
-        if (!fs.existsSync(knownHostsFilepath)) {
-            fs.writeFileSync(knownHostsFilepath, "");
-        }
-        execInRealTime(`ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        execInRealTime(`touch ${knownHostsFilepath}; ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
         // Set private key.
         const keyFilepath = path_1.default.join(sshDir, KEY_NAME);
         fs.writeFileSync(keyFilepath, inputs.sshPrivateKey);
