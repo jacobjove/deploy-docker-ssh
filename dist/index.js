@@ -2783,13 +2783,9 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
+const KEY_NAME = "gha";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        // Required the SSH agent to be configured.
-        if (!process.env.SSH_AUTH_SOCK) {
-            core.setFailed(`SSH agent is not initialized. Please use the ssh-agent action: https://github.com/webfactory/ssh-agent`);
-            return;
-        }
         // Verify workspace structure.
         const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
         if (!GITHUB_WORKSPACE) {
@@ -2800,8 +2796,20 @@ function run() {
             core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
             return;
         }
+        const homeDir = process.env.HOME || path_1.default.resolve("~");
+        if (!homeDir) {
+            core.setFailed("HOME is not set.");
+            return;
+        }
+        const sshDir = path_1.default.join(homeDir, ".ssh");
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
+        // Set known hosts.
+        const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
+        execInRealTime(`ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        // Set private key.
+        const keyFilepath = path_1.default.join(sshDir, KEY_NAME);
+        fs.writeFileSync(keyFilepath, inputs.sshPrivateKey);
         const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
         // Confirm the target directory exists on the server.
         core.info("Confirming target directory exists on remote server...");
@@ -2811,7 +2819,7 @@ function run() {
     else echo "Target directory ${inputs.targetDir} does not exist."; fi`)
             .toString()
             .trim();
-        if (targetDirCheckOutput !== successMessage) {
+        if (!targetDirCheckOutput.includes(successMessage)) {
             core.setFailed(targetDirCheckOutput);
             return;
         }
@@ -2820,7 +2828,7 @@ function run() {
             const distDirPath = path_1.default.join(GITHUB_WORKSPACE, `tmp-${(0, nanoid_1.nanoid)()}`);
             fs.mkdirSync(distDirPath, { recursive: true });
             // Enter the source directory.
-            const sourceDir = path_1.default.join(GITHUB_WORKSPACE, inputs.sourceDir);
+            const sourceDir = path_1.default.resolve(GITHUB_WORKSPACE, inputs.sourceDir);
             if (!fs.existsSync(sourceDir)) {
                 core.setFailed(`${sourceDir} does not exist.`);
                 return;

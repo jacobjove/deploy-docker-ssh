@@ -7,4 +7,4 @@ tests:
 automation:
   - .github/workflows/*
 docs:
-  - '*.md'
+  - "*.md"

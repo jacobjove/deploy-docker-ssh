@@ -3,13 +3,13 @@
 ##
 name: Pull Request Labeler
 on:
-- pull_request_target
+  - pull_request_target
 
 jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-    # See documentation: https://github.com/actions/labeler
-    - uses: actions/labeler@v4.0.1
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      # See documentation: https://github.com/actions/labeler
+      - uses: actions/labeler@v4.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
