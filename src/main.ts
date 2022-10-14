@@ -50,6 +50,7 @@ async function run(): Promise<void> {
     ssh-agent -a ${inputs.sshAuthSock} > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
+  core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);
