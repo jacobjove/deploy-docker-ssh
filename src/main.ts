@@ -40,6 +40,16 @@ async function run(): Promise<void> {
   // Read inputs.
   const inputs: Inputs = await getInputs();
 
+  const sshAuthSock = inputs.sshAuthSock;
+  let sshAuthSockPath = sshAuthSock;
+  if (!path.isAbsolute(sshAuthSock)) {
+    if (sshAuthSock.startsWith("~")) {
+      sshAuthSockPath = path.join(homeDir, sshAuthSock.slice(1));
+    } else {
+      sshAuthSockPath = path.join(sshDir, sshAuthSock);
+    }
+  }
+
   // Set known hosts and private key.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
   execInRealTime(
@@ -47,7 +57,7 @@ async function run(): Promise<void> {
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
     touch "${inputs.sshAuthSock}";
-    ssh-agent -a "${inputs.sshAuthSock}" > /dev/null && 
+    ssh-agent -a "${sshAuthSockPath}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
   core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);

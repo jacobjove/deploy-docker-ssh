@@ -2816,13 +2816,23 @@ function run() {
         core.info(`SSH directory: ${sshDir}`);
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
+        const sshAuthSock = inputs.sshAuthSock;
+        let sshAuthSockPath = sshAuthSock;
+        if (!path_1.default.isAbsolute(sshAuthSock)) {
+            if (sshAuthSock.startsWith("~")) {
+                sshAuthSockPath = path_1.default.join(homeDir, sshAuthSock.slice(1));
+            }
+            else {
+                sshAuthSockPath = path_1.default.join(sshDir, sshAuthSock);
+            }
+        }
         // Set known hosts and private key.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
         execInRealTime(`touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
     touch "${inputs.sshAuthSock}";
-    ssh-agent -a "${inputs.sshAuthSock}" > /dev/null && 
+    ssh-agent -a "${sshAuthSockPath}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`);
         core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);
         // Set private key.
