@@ -2801,7 +2801,12 @@ function run() {
             core.setFailed("HOME is not set.");
             return;
         }
+        else if (!fs.existsSync(homeDir)) {
+            core.setFailed(`Home directory (${homeDir}) does not exist.`);
+            return;
+        }
         const sshDir = path_1.default.join(homeDir, ".ssh");
+        // Ensure the SSH directory exists.
         fs.mkdirSync(sshDir, {
             recursive: true,
             mode: 0o700,
