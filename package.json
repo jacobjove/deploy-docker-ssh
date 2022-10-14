@@ -34,7 +34,7 @@
     "nanoid": "^4.0.0"
   },
   "devDependencies": {
-    "@jest/types": "^29.1.2",
+    "@jest/types": "^29.2.0",
     "@types/node": "^18.8.1",
     "@typescript-eslint/parser": "^5.39.0",
     "@vercel/ncc": "^0.34.0",
