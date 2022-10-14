@@ -5,15 +5,9 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-async function run(): Promise<void> {
-  // Required the SSH agent to be configured.
-  if (!process.env.SSH_AUTH_SOCK) {
-    core.setFailed(
-      `SSH agent is not initialized. Please use the ssh-agent action: https://github.com/webfactory/ssh-agent`
-    );
-    return;
-  }
+const KEY_NAME = "gha";
 
+async function run(): Promise<void> {
   // Verify workspace structure.
   const GITHUB_WORKSPACE = process.env.GITHUB_WORKSPACE;
   if (!GITHUB_WORKSPACE) {
@@ -23,9 +17,25 @@ async function run(): Promise<void> {
     core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
     return;
   }
+  const homeDir = process.env.HOME || path.resolve("~");
+  if (!homeDir) {
+    core.setFailed("HOME is not set.");
+    return;
+  }
+  const sshDir = path.join(homeDir, ".ssh");
 
   // Read inputs.
   const inputs: Inputs = await getInputs();
+
+  // Set known hosts.
+  const knownHostsFilepath = path.join(sshDir, "known_hosts");
+  execInRealTime(
+    `ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
+  );
+
+  // Set private key.
+  const keyFilepath = path.join(sshDir, KEY_NAME);
+  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey);
 
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
 
@@ -39,7 +49,7 @@ async function run(): Promise<void> {
   )
     .toString()
     .trim();
-  if (targetDirCheckOutput !== successMessage) {
+  if (!targetDirCheckOutput.includes(successMessage)) {
     core.setFailed(targetDirCheckOutput);
     return;
   }
@@ -50,7 +60,7 @@ async function run(): Promise<void> {
     fs.mkdirSync(distDirPath, { recursive: true });
 
     // Enter the source directory.
-    const sourceDir = path.join(GITHUB_WORKSPACE, inputs.sourceDir);
+    const sourceDir = path.resolve(GITHUB_WORKSPACE, inputs.sourceDir);
     if (!fs.existsSync(sourceDir)) {
       core.setFailed(`${sourceDir} does not exist.`);
       return;
