@@ -46,9 +46,8 @@ async function run(): Promise<void> {
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    echo "Known hosts:" && cat ${knownHostsFilepath} &&
-    touch ${inputs.sshAuthSock} &&
-    ssh-agent -a ${inputs.sshAuthSock} > /dev/null && 
+    touch "${inputs.sshAuthSock}";
+    ssh-agent -a "${inputs.sshAuthSock}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
   core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);
