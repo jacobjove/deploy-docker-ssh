@@ -23,6 +23,10 @@ async function run(): Promise<void> {
     return;
   }
   const sshDir = path.join(homeDir, ".ssh");
+  fs.mkdirSync(sshDir, {
+    recursive: true,
+    mode: 0o700,
+  });
 
   // Read inputs.
   const inputs: Inputs = await getInputs();

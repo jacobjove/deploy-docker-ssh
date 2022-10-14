@@ -2802,6 +2802,10 @@ function run() {
             return;
         }
         const sshDir = path_1.default.join(homeDir, ".ssh");
+        fs.mkdirSync(sshDir, {
+            recursive: true,
+            mode: 0o700,
+        });
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
         // Set known hosts.
