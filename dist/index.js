@@ -2796,6 +2796,7 @@ function run() {
             core.setFailed(`${GITHUB_WORKSPACE} does not exist.`);
             return;
         }
+        // Ensure the home directory exists.
         const homeDir = process.env.HOME || path_1.default.resolve("~");
         if (!homeDir) {
             core.setFailed("HOME is not set.");

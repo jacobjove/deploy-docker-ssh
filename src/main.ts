@@ -18,6 +18,7 @@ async function run(): Promise<void> {
     return;
   }
 
+  // Ensure the home directory exists.
   const homeDir = process.env.HOME || path.resolve("~");
   if (!homeDir) {
     core.setFailed("HOME is not set.");
