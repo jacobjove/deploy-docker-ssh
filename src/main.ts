@@ -48,11 +48,24 @@ async function run(): Promise<void> {
   const keyFilepath = path.join(sshDir, KEY_NAME);
   fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
 
+  // Set permissions on the home directory.
+  execInRealTime(`chmod og-rw ${homeDir}`);
+
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
+
+  // Confirm able to connect.
+  core.info("Checking connection...");
+  let successMessage = "OK";
+  const checkOutput = execSync(
+    `${sshPartial} -o BatchMode=yes -o ConnectTimeout=5 ${inputs.user}@${inputs.host} echo "${successMessage}"`
+  )
+    .toString()
+    .trim();
+  core.info(`Result: ${checkOutput}`);
 
   // Confirm the target directory exists on the server.
   core.info("Confirming target directory exists on remote server...");
-  const successMessage = "Confirmed target directory exists.";
+  successMessage = "Confirmed target directory exists.";
   const targetDirCheckOutput = execSync(
     `if ${sshPartial} ${inputs.user}@${inputs.host} "[ -d ${inputs.targetDir} ]"; 
     then echo "${successMessage}"; 
