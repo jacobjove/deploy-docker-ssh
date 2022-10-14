@@ -35,7 +35,7 @@ async function run(): Promise<void> {
 
   // Set private key.
   const keyFilepath = path.join(sshDir, KEY_NAME);
-  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey);
+  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
 
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
 
