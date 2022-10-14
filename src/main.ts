@@ -29,6 +29,9 @@ async function run(): Promise<void> {
 
   // Set known hosts.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
+  if (!fs.existsSync(knownHostsFilepath)) {
+    fs.writeFileSync(knownHostsFilepath, "");
+  }
   execInRealTime(
     `ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
   );
