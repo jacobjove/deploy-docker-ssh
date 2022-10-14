@@ -29,16 +29,13 @@ async function run(): Promise<void> {
 
   // Set known hosts.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
-  if (!fs.existsSync(knownHostsFilepath)) {
-    fs.writeFileSync(knownHostsFilepath, "");
-  }
   execInRealTime(
-    `ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
+    `touch ${knownHostsFilepath}; ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
   );
 
   // Set private key.
   const keyFilepath = path.join(sshDir, KEY_NAME);
-  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey);
+  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
 
   const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;
 
