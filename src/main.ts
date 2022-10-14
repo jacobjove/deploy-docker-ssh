@@ -49,6 +49,11 @@ async function run(): Promise<void> {
       sshAuthSockPath = path.join(sshDir, sshAuthSock);
     }
   }
+  if (!fs.existsSync(sshAuthSockPath)) {
+    execInRealTime(
+      `touch ${sshAuthSockPath} || echo "Failed to create sock file at ${sshAuthSockPath}"`
+    );
+  }
 
   // Set known hosts and private key.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
@@ -56,7 +61,6 @@ async function run(): Promise<void> {
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    touch "${inputs.sshAuthSock}";
     ssh-agent -a "${sshAuthSockPath}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
