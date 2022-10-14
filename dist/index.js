@@ -2783,7 +2783,7 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-const KEY_NAME = "gha";
+// const KEY_NAME = "gha";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify workspace structure.
@@ -2806,20 +2806,27 @@ function run() {
             core.setFailed(`Home directory (${homeDir}) does not exist.`);
             return;
         }
+        core.info(`Home directory: ${homeDir}`);
         const sshDir = path_1.default.join(homeDir, ".ssh");
         // Ensure the SSH directory exists.
         fs.mkdirSync(sshDir, {
             recursive: true,
             mode: 0o700,
         });
+        core.info(`SSH directory: ${sshDir}`);
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
-        // Set known hosts.
+        // Set known hosts and private key.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
-        execInRealTime(`touch ${knownHostsFilepath}; ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        execInRealTime(`touch ${knownHostsFilepath}; 
+    ssh-keyscan github.com >> ${knownHostsFilepath} &&
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
+    echo "Known hosts:" && cat ${knownHostsFilepath} &&
+    ssh-agent -a ${inputs.sshAuthSock} > /dev/null && 
+    ssh-add - <<< "${inputs.sshPrivateKey}"`);
         // Set private key.
-        const keyFilepath = path_1.default.join(sshDir, KEY_NAME);
-        fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
+        // const keyFilepath = path.join(sshDir, KEY_NAME);
+        // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
         // Set permissions on the home directory.
         execInRealTime(`chmod og-rw ${homeDir}`);
         const sshPartial = `ssh -o StrictHostKeyChecking=no -p "${inputs.sshPort}"`;

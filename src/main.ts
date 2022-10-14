@@ -5,7 +5,7 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-const KEY_NAME = "gha";
+// const KEY_NAME = "gha";
 
 async function run(): Promise<void> {
   // Verify workspace structure.
@@ -27,6 +27,7 @@ async function run(): Promise<void> {
     core.setFailed(`Home directory (${homeDir}) does not exist.`);
     return;
   }
+  core.info(`Home directory: ${homeDir}`);
 
   const sshDir = path.join(homeDir, ".ssh");
   // Ensure the SSH directory exists.
@@ -34,19 +35,25 @@ async function run(): Promise<void> {
     recursive: true,
     mode: 0o700,
   });
+  core.info(`SSH directory: ${sshDir}`);
 
   // Read inputs.
   const inputs: Inputs = await getInputs();
 
-  // Set known hosts.
+  // Set known hosts and private key.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
   execInRealTime(
-    `touch ${knownHostsFilepath}; ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
+    `touch ${knownHostsFilepath}; 
+    ssh-keyscan github.com >> ${knownHostsFilepath} &&
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
+    echo "Known hosts:" && cat ${knownHostsFilepath} &&
+    ssh-agent -a ${inputs.sshAuthSock} > /dev/null && 
+    ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
 
   // Set private key.
-  const keyFilepath = path.join(sshDir, KEY_NAME);
-  fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
+  // const keyFilepath = path.join(sshDir, KEY_NAME);
+  // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
 
   // Set permissions on the home directory.
   execInRealTime(`chmod og-rw ${homeDir}`);
