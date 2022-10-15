@@ -5,7 +5,7 @@ export interface Inputs {
   user: string;
   sourceDir: string;
   targetDir: string;
-  files: string;
+  files?: string;
   sshPort: string;
   sshPrivateKey: string;
   command: string;
@@ -17,7 +17,7 @@ export async function getInputs(): Promise<Inputs> {
     user: core.getInput("user", { required: true }),
     sourceDir: core.getInput("source-dir", { required: false }),
     targetDir: core.getInput("target-dir", { required: true }),
-    files: core.getInput("files", { required: true }),
+    files: core.getInput("files", { required: false }),
     sshPort: core.getInput("ssh-port", { required: false }) || "22",
     sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
     command:

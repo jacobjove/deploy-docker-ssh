@@ -2720,7 +2720,7 @@ function getInputs() {
             user: core.getInput("user", { required: true }),
             sourceDir: core.getInput("source-dir", { required: false }),
             targetDir: core.getInput("target-dir", { required: true }),
-            files: core.getInput("files", { required: true }),
+            files: core.getInput("files", { required: false }),
             sshPort: core.getInput("ssh-port", { required: false }) || "22",
             sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
             command: core.getInput("command", { required: false }) ||
