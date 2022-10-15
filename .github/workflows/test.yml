@@ -16,12 +16,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: ./
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        user: jacob
-        target-dir: /tmp
-        ssh-port: ${{ secrets.SSH_PORT }}
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        command: echo "Hello world."
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: jacob
+          target-dir: /tmp
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command: echo "Hello world."
