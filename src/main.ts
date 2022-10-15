@@ -5,7 +5,7 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
+const STATE_KEY = "DEPLOY_DOCKER_SSH";
 
 async function run(): Promise<void> {
   // Verify workspace structure.
@@ -147,7 +147,17 @@ async function run(): Promise<void> {
   }
 }
 
-run();
+if (typeof process.env[`STATE_${STATE_KEY}`] === "undefined") {
+  core.saveState(STATE_KEY, "true");
+  run();
+} else {
+  try {
+    // Kill the SSH agent.
+    execSync("ssh-agent -k");
+  } catch (error) {
+    core.info(String(error));
+  }
+}
 
 function execInRealTime(
   ...args: Parameters<typeof execSync>
