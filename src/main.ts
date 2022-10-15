@@ -5,7 +5,7 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
+// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
 
 async function run(): Promise<void> {
   // Verify workspace structure.
@@ -48,7 +48,7 @@ async function run(): Promise<void> {
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
     eval $(ssh-agent); ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
-  core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
+  // core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);
