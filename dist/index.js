@@ -2716,8 +2716,6 @@ const core = __importStar(__nccwpck_require__(186));
 function getInputs() {
     return __awaiter(this, void 0, void 0, function* () {
         const inputs = {
-            sshAuthSock: core.getInput("ssh-auth-sock", { required: false }) ||
-                "/tmp/ssh_agent.sock",
             host: core.getInput("host", { required: true }),
             user: core.getInput("user", { required: true }),
             sourceDir: core.getInput("source-dir", { required: false }),
@@ -2776,6 +2774,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const child_process_1 = __nccwpck_require__(81);
 const path_1 = __importDefault(__nccwpck_require__(17));
@@ -2783,7 +2782,7 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-// const KEY_NAME = "gha";
+const SSH_AUTH_SOCK = (_a = process.env.SSH_AUTH_SOCK) !== null && _a !== void 0 ? _a : "/tmp/ssh_agent.sock";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify workspace structure.
@@ -2816,27 +2815,14 @@ function run() {
         core.info(`SSH directory: ${sshDir}`);
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
-        const sshAuthSock = inputs.sshAuthSock;
-        let sshAuthSockPath = sshAuthSock;
-        if (!path_1.default.isAbsolute(sshAuthSock)) {
-            if (sshAuthSock.startsWith("~")) {
-                sshAuthSockPath = path_1.default.join(homeDir, sshAuthSock.slice(1));
-            }
-            else {
-                sshAuthSockPath = path_1.default.join(sshDir, sshAuthSock);
-            }
-        }
-        if (!fs.existsSync(sshAuthSockPath)) {
-            execInRealTime(`touch ${sshAuthSockPath} || echo "Failed to create sock file at ${sshAuthSockPath}"`);
-        }
         // Set known hosts and private key.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
         execInRealTime(`touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    ssh-agent -a "${sshAuthSockPath}" > /dev/null && 
+    ssh-agent -a "${SSH_AUTH_SOCK}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`);
-        core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);
+        core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
         // Set private key.
         // const keyFilepath = path.join(sshDir, KEY_NAME);
         // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
