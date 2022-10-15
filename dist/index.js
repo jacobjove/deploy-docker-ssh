@@ -140,7 +140,6 @@ const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(278);
 const os = __importStar(__nccwpck_require__(37));
 const path = __importStar(__nccwpck_require__(17));
-const uuid_1 = __nccwpck_require__(840);
 const oidc_utils_1 = __nccwpck_require__(41);
 /**
  * The code to exit an action
@@ -170,20 +169,9 @@ function exportVariable(name, val) {
     process.env[name] = convertedVal;
     const filePath = process.env['GITHUB_ENV'] || '';
     if (filePath) {
-        const delimiter = `ghadelimiter_${uuid_1.v4()}`;
-        // These should realistically never happen, but just in case someone finds a way to exploit uuid generation let's not allow keys or values that contain the delimiter.
-        if (name.includes(delimiter)) {
-            throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
-        }
-        if (convertedVal.includes(delimiter)) {
-            throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
-        }
-        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
-        file_command_1.issueCommand('ENV', commandValue);
+        return file_command_1.issueFileCommand('ENV', file_command_1.prepareKeyValueMessage(name, val));
     }
-    else {
-        command_1.issueCommand('set-env', { name }, convertedVal);
-    }
+    command_1.issueCommand('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -201,7 +189,7 @@ exports.setSecret = setSecret;
 function addPath(inputPath) {
     const filePath = process.env['GITHUB_PATH'] || '';
     if (filePath) {
-        file_command_1.issueCommand('PATH', inputPath);
+        file_command_1.issueFileCommand('PATH', inputPath);
     }
     else {
         command_1.issueCommand('add-path', {}, inputPath);
@@ -241,7 +229,10 @@ function getMultilineInput(name, options) {
     const inputs = getInput(name, options)
         .split('\n')
         .filter(x => x !== '');
-    return inputs;
+    if (options && options.trimWhitespace === false) {
+        return inputs;
+    }
+    return inputs.map(input => input.trim());
 }
 exports.getMultilineInput = getMultilineInput;
 /**
@@ -274,8 +265,12 @@ exports.getBooleanInput = getBooleanInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('OUTPUT', file_command_1.prepareKeyValueMessage(name, value));
+    }
     process.stdout.write(os.EOL);
-    command_1.issueCommand('set-output', { name }, value);
+    command_1.issueCommand('set-output', { name }, utils_1.toCommandValue(value));
 }
 exports.setOutput = setOutput;
 /**
@@ -404,7 +399,11 @@ exports.group = group;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
+    const filePath = process.env['GITHUB_STATE'] || '';
+    if (filePath) {
+        return file_command_1.issueFileCommand('STATE', file_command_1.prepareKeyValueMessage(name, value));
+    }
+    command_1.issueCommand('save-state', { name }, utils_1.toCommandValue(value));
 }
 exports.saveState = saveState;
 /**
@@ -470,13 +469,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.issueCommand = void 0;
+exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
+const uuid_1 = __nccwpck_require__(840);
 const utils_1 = __nccwpck_require__(278);
-function issueCommand(command, message) {
+function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
@@ -488,7 +488,22 @@ function issueCommand(command, message) {
         encoding: 'utf8'
     });
 }
-exports.issueCommand = issueCommand;
+exports.issueFileCommand = issueFileCommand;
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${uuid_1.v4()}`;
+    const convertedValue = utils_1.toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+}
+exports.prepareKeyValueMessage = prepareKeyValueMessage;
 //# sourceMappingURL=file-command.js.map
 
 /***/ }),
@@ -2720,7 +2735,7 @@ function getInputs() {
             user: core.getInput("user", { required: true }),
             sourceDir: core.getInput("source-dir", { required: false }),
             targetDir: core.getInput("target-dir", { required: true }),
-            files: core.getInput("files", { required: true }),
+            files: core.getInput("files", { required: false }),
             sshPort: core.getInput("ssh-port", { required: false }) || "22",
             sshPrivateKey: core.getInput("ssh-private-key", { required: true }),
             command: core.getInput("command", { required: false }) ||
@@ -2774,7 +2789,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const child_process_1 = __nccwpck_require__(81);
 const path_1 = __importDefault(__nccwpck_require__(17));
@@ -2782,7 +2796,7 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-const SSH_AUTH_SOCK = (_a = process.env.SSH_AUTH_SOCK) !== null && _a !== void 0 ? _a : "/tmp/ssh_agent.sock";
+// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify workspace structure.
@@ -2815,14 +2829,24 @@ function run() {
         core.info(`SSH directory: ${sshDir}`);
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
-        // Set known hosts and private key.
+        // Set known hosts.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
         execInRealTime(`touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    ssh-agent -a "${SSH_AUTH_SOCK}" > /dev/null && 
-    ssh-add - <<< "${inputs.sshPrivateKey}"`);
-        core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        // Start SSH agent.
+        const output = (0, child_process_1.execSync)("ssh-agent").toString();
+        // Extract and export environment variables from the ssh-agent output.
+        for (const line of output.split("\n")) {
+            const matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec(line);
+            if (matches && matches.length > 0) {
+                // This will also set process.env accordingly, so changes take effect for this script
+                core.exportVariable(matches[1], matches[2]);
+                core.info(`${matches[1]}=${matches[2]}`);
+            }
+        }
+        // Install the private key.
+        execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
         // Set private key.
         // const keyFilepath = path.join(sshDir, KEY_NAME);
         // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });

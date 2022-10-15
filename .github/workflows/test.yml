@@ -1,4 +1,4 @@
-name: "units-test"
+name: Test
 on:
   pull_request:
   push:
@@ -7,19 +7,21 @@ on:
       - "releases/*"
 
 jobs:
-  # unit tests
   units:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
       - run: npm test
-
-  # test action works running from the graph
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - uses: ./
-  #     with:
-  #       milliseconds: 1000
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: jacob
+          target-dir: /tmp
+          ssh-port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command: echo "Hello world."

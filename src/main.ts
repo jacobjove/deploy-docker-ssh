@@ -5,7 +5,7 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
+// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
 
 async function run(): Promise<void> {
   // Verify workspace structure.
@@ -40,31 +40,28 @@ async function run(): Promise<void> {
   // Read inputs.
   const inputs: Inputs = await getInputs();
 
-  // const sshAuthSock = inputs.sshAuthSock;
-  // let sshAuthSockPath = sshAuthSock;
-  // if (!path.isAbsolute(sshAuthSock)) {
-  //   if (sshAuthSock.startsWith("~")) {
-  //     sshAuthSockPath = path.join(homeDir, sshAuthSock.slice(1));
-  //   } else {
-  //     sshAuthSockPath = path.join(sshDir, sshAuthSock);
-  //   }
-  // }
-  // if (!fs.existsSync(sshAuthSockPath)) {
-  //   execInRealTime(
-  //     `touch ${sshAuthSockPath} || echo "Failed to create sock file at ${sshAuthSockPath}"`
-  //   );
-  // }
-
-  // Set known hosts and private key.
+  // Set known hosts.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
   execInRealTime(
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    ssh-agent -a "${SSH_AUTH_SOCK}" > /dev/null && 
-    ssh-add - <<< "${inputs.sshPrivateKey}"`
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
   );
-  core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
+
+  // Start SSH agent.
+  const output = execSync("ssh-agent").toString();
+  // Extract and export environment variables from the ssh-agent output.
+  for (const line of output.split("\n")) {
+    const matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec(line);
+    if (matches && matches.length > 0) {
+      // This will also set process.env accordingly, so changes take effect for this script
+      core.exportVariable(matches[1], matches[2]);
+      core.info(`${matches[1]}=${matches[2]}`);
+    }
+  }
+
+  // Install the private key.
+  execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);
