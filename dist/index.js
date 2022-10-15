@@ -2774,7 +2774,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const child_process_1 = __nccwpck_require__(81);
 const path_1 = __importDefault(__nccwpck_require__(17));
@@ -2782,7 +2781,7 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-const SSH_AUTH_SOCK = (_a = process.env.SSH_AUTH_SOCK) !== null && _a !== void 0 ? _a : "/tmp/ssh_agent.sock";
+// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify workspace structure.
@@ -2820,9 +2819,8 @@ function run() {
         execInRealTime(`touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    ssh-agent -a "${SSH_AUTH_SOCK}" > /dev/null && 
-    ssh-add - <<< "${inputs.sshPrivateKey}"`);
-        core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
+    eval $(ssh-agent); ssh-add - <<< "${inputs.sshPrivateKey}"`);
+        // core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
         // Set private key.
         // const keyFilepath = path.join(sshDir, KEY_NAME);
         // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
