@@ -49,10 +49,6 @@ The SSH port (e.g., 22) to use for connecting to the server.
 
 The private key generated on the server, used to authenticate the SSH connection.
 
-## `ssh-auth-sock`
-
-The SSH_AUTH_SOCK environment variable, used to authenticate the SSH connection.
-
 **Default**: `'/tmp/ssh_agent.sock'`
 
 ## `command`

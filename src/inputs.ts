@@ -1,7 +1,6 @@
 import * as core from "@actions/core";
 
 export interface Inputs {
-  sshAuthSock: string;
   host: string;
   user: string;
   sourceDir: string;
@@ -14,9 +13,6 @@ export interface Inputs {
 
 export async function getInputs(): Promise<Inputs> {
   const inputs: Inputs = {
-    sshAuthSock:
-      core.getInput("ssh-auth-sock", { required: false }) ||
-      "/tmp/ssh_agent.sock",
     host: core.getInput("host", { required: true }),
     user: core.getInput("user", { required: true }),
     sourceDir: core.getInput("source-dir", { required: false }),
