@@ -42,13 +42,21 @@ async function run(): Promise<void> {
 
   // Set known hosts and private key.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
-  execInRealTime(
+  const output = execInRealTime(
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
     eval $(ssh-agent); ssh-add - <<< "${inputs.sshPrivateKey}"`
-  );
-  // core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
+  ).toString();
+  // Extract and export environment variables from the ssh-agent output.
+  for (const line of output.split("\n")) {
+    const matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec(line);
+    if (matches && matches.length > 0) {
+      // This will also set process.env accordingly, so changes take effect for this script
+      core.exportVariable(matches[1], matches[2]);
+      core.info(`${matches[1]}=${matches[2]}`);
+    }
+  }
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);
