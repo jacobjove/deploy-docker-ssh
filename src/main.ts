@@ -40,14 +40,16 @@ async function run(): Promise<void> {
   // Read inputs.
   const inputs: Inputs = await getInputs();
 
-  // Set known hosts and private key.
+  // Set known hosts.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
-  const output = execInRealTime(
+  execInRealTime(
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    eval $(ssh-agent); ssh-add - <<< "${inputs.sshPrivateKey}"`
-  ).toString();
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
+  );
+
+  // Start SSH agent.
+  const output = execSync("ssh-agent").toString();
   // Extract and export environment variables from the ssh-agent output.
   for (const line of output.split("\n")) {
     const matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec(line);
@@ -57,6 +59,9 @@ async function run(): Promise<void> {
       core.info(`${matches[1]}=${matches[2]}`);
     }
   }
+
+  // Install the private key.
+  execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);

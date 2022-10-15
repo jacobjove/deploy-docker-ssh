@@ -2814,12 +2814,13 @@ function run() {
         core.info(`SSH directory: ${sshDir}`);
         // Read inputs.
         const inputs = yield (0, inputs_1.getInputs)();
-        // Set known hosts and private key.
+        // Set known hosts.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
-        const output = execInRealTime(`touch ${knownHostsFilepath}; 
+        execInRealTime(`touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    eval $(ssh-agent); ssh-add - <<< "${inputs.sshPrivateKey}"`).toString();
+    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        // Start SSH agent.
+        const output = (0, child_process_1.execSync)("ssh-agent").toString();
         // Extract and export environment variables from the ssh-agent output.
         for (const line of output.split("\n")) {
             const matches = /^(SSH_AUTH_SOCK|SSH_AGENT_PID)=(.*); export \1/.exec(line);
@@ -2829,6 +2830,8 @@ function run() {
                 core.info(`${matches[1]}=${matches[2]}`);
             }
         }
+        // Install the private key.
+        execInRealTime(`ssh-add - <<< "${inputs.sshPrivateKey}"`);
         // Set private key.
         // const keyFilepath = path.join(sshDir, KEY_NAME);
         // fs.writeFileSync(keyFilepath, inputs.sshPrivateKey, { flag: "wx" });
