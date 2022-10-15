@@ -2796,7 +2796,7 @@ const inputs_1 = __nccwpck_require__(63);
 const core = __importStar(__nccwpck_require__(186));
 const fs = __importStar(__nccwpck_require__(147));
 const nanoid_1 = __nccwpck_require__(934);
-// const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
+const STATE_KEY = "DEPLOY_DOCKER_SSH";
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify workspace structure.
@@ -2913,7 +2913,19 @@ function run() {
         }
     });
 }
-run();
+if (typeof process.env[`STATE_${STATE_KEY}`] === "undefined") {
+    core.saveState(STATE_KEY, "true");
+    run();
+}
+else {
+    try {
+        // Kill the SSH agent.
+        (0, child_process_1.execSync)("ssh-agent -k");
+    }
+    catch (error) {
+        core.info(String(error));
+    }
+}
 function execInRealTime(...args) {
     const [command, options] = args;
     return (0, child_process_1.execSync)(command, Object.assign({ shell: "/bin/bash", stdio: "inherit" }, (options !== null && options !== void 0 ? options : {})));
