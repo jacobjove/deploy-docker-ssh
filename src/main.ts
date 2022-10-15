@@ -5,7 +5,7 @@ import * as core from "@actions/core";
 import * as fs from "fs";
 import { nanoid } from "nanoid";
 
-// const KEY_NAME = "gha";
+const SSH_AUTH_SOCK = process.env.SSH_AUTH_SOCK ?? "/tmp/ssh_agent.sock";
 
 async function run(): Promise<void> {
   // Verify workspace structure.
@@ -40,20 +40,20 @@ async function run(): Promise<void> {
   // Read inputs.
   const inputs: Inputs = await getInputs();
 
-  const sshAuthSock = inputs.sshAuthSock;
-  let sshAuthSockPath = sshAuthSock;
-  if (!path.isAbsolute(sshAuthSock)) {
-    if (sshAuthSock.startsWith("~")) {
-      sshAuthSockPath = path.join(homeDir, sshAuthSock.slice(1));
-    } else {
-      sshAuthSockPath = path.join(sshDir, sshAuthSock);
-    }
-  }
-  if (!fs.existsSync(sshAuthSockPath)) {
-    execInRealTime(
-      `touch ${sshAuthSockPath} || echo "Failed to create sock file at ${sshAuthSockPath}"`
-    );
-  }
+  // const sshAuthSock = inputs.sshAuthSock;
+  // let sshAuthSockPath = sshAuthSock;
+  // if (!path.isAbsolute(sshAuthSock)) {
+  //   if (sshAuthSock.startsWith("~")) {
+  //     sshAuthSockPath = path.join(homeDir, sshAuthSock.slice(1));
+  //   } else {
+  //     sshAuthSockPath = path.join(sshDir, sshAuthSock);
+  //   }
+  // }
+  // if (!fs.existsSync(sshAuthSockPath)) {
+  //   execInRealTime(
+  //     `touch ${sshAuthSockPath} || echo "Failed to create sock file at ${sshAuthSockPath}"`
+  //   );
+  // }
 
   // Set known hosts and private key.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
@@ -61,10 +61,10 @@ async function run(): Promise<void> {
     `touch ${knownHostsFilepath}; 
     ssh-keyscan github.com >> ${knownHostsFilepath} &&
     ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath} && 
-    ssh-agent -a "${sshAuthSockPath}" > /dev/null && 
+    ssh-agent -a "${SSH_AUTH_SOCK}" > /dev/null && 
     ssh-add - <<< "${inputs.sshPrivateKey}"`
   );
-  core.exportVariable("SSH_AUTH_SOCK", inputs.sshAuthSock);
+  core.exportVariable("SSH_AUTH_SOCK", SSH_AUTH_SOCK);
 
   // Set private key.
   // const keyFilepath = path.join(sshDir, KEY_NAME);
