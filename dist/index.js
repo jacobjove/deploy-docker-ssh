@@ -2831,9 +2831,11 @@ function run() {
         const inputs = yield (0, inputs_1.getInputs)();
         // Set known hosts.
         const knownHostsFilepath = path_1.default.join(sshDir, "known_hosts");
-        execInRealTime(`touch ${knownHostsFilepath}; 
-    ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`);
+        execInRealTime(`touch ${knownHostsFilepath}`);
+        const githubHostsData = (0, child_process_1.execSync)(`ssh-keyscan github.com`).toString();
+        fs.appendFileSync(knownHostsFilepath, githubHostsData);
+        const remoteServerHostsData = (0, child_process_1.execSync)(`ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host}`).toString();
+        fs.appendFileSync(knownHostsFilepath, remoteServerHostsData);
         // Start SSH agent.
         const output = (0, child_process_1.execSync)("ssh-agent").toString();
         // Extract and export environment variables from the ssh-agent output.
