@@ -42,11 +42,13 @@ async function run(): Promise<void> {
 
   // Set known hosts.
   const knownHostsFilepath = path.join(sshDir, "known_hosts");
-  execInRealTime(
-    `touch ${knownHostsFilepath}; 
-    ssh-keyscan github.com >> ${knownHostsFilepath} &&
-    ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host} >> ${knownHostsFilepath}`
-  );
+  execInRealTime(`touch ${knownHostsFilepath}`);
+  const githubHostsData = execSync(`ssh-keyscan github.com`).toString();
+  fs.appendFileSync(knownHostsFilepath, githubHostsData);
+  const remoteServerHostsData = execSync(
+    `ssh-keyscan -p ${inputs.sshPort} -H ${inputs.host}`
+  ).toString();
+  fs.appendFileSync(knownHostsFilepath, remoteServerHostsData);
 
   // Start SSH agent.
   const output = execSync("ssh-agent").toString();
