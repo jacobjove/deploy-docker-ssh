@@ -1,6 +1,6 @@
 {
   "name": "deploy-docker-ssh",
-  "version": "0.2.6",
+  "version": "0.5.0",
   "private": true,
   "description": "Deploys a docker container to a remote host",
   "main": "dist/index.js",
@@ -22,7 +22,7 @@
     "GitHub",
     "SSH"
   ],
-  "author": "Jacob Fredericksen <jacob.t.fredericksen@gmail.com>",
+  "author": "Jacob Jove <jacob.t.jove@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/iacobfred/deploy-docker-ssh/issues"
