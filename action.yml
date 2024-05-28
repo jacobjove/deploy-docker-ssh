@@ -34,7 +34,7 @@ inputs:
     description: "The command to run on the server to deploy the container"
     required: true
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
   post: "dist/index.js"
   post-if: "always()"
